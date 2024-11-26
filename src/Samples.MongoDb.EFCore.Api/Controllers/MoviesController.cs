@@ -24,24 +24,32 @@ namespace Samples.MongoDb.EFCore.Api.Controllers
         }
 
         [HttpGet]
-        [SwaggerResponse((int)HttpStatusCode.OK, Type = typeof(IEnumerable<Movie>), Description = "Movies")]
+        [SwaggerResponse((int)HttpStatusCode.OK, Type = typeof(IEnumerable<MovieViewModel>), Description = "List movies")]
         public async Task<ActionResult<IEnumerable<Movie>>> GetMovies()
         {
-            await Task.CompletedTask;
-            var movies = _dbContext.Movies.AsNoTracking().AsEnumerable<Movie>();
-            return Ok(movies); 
+            var movies = await _dbContext.Movies.AsNoTracking().ToArrayAsync<Movie>();
+            var movieViewModels = _mapper.Map<IEnumerable<MovieViewModel>>(movies);
+            return Ok(movieViewModels);
+        }
+
+        [HttpGet("{id}")]
+        [SwaggerResponse((int)HttpStatusCode.OK, Type = typeof(IEnumerable<MovieViewModel>), Description = "Movie details")]
+        public async Task<ActionResult<IEnumerable<Movie>>> GetMovie(Guid id)
+        {
+            var movie = await _dbContext.Movies.AsNoTracking().SingleAsync<Movie>(m => m._id == id);
+            var movieViewModel = _mapper.Map<MovieViewModel>(movie);
+            return Ok(movieViewModel);
         }
 
         [HttpPost]
-        [SwaggerResponse((int)HttpStatusCode.NoContent, Type = typeof(IEnumerable<Movie>), Description = "Movies")]
+        [SwaggerResponse((int)HttpStatusCode.NoContent, Type = typeof(IEnumerable<Movie>), Description = "Add movie")]
         public async Task<ActionResult<IEnumerable<Movie>>> AddMovie(
             [FromBody] MovieAddModel movieAddModel
             )
         {
-            await Task.CompletedTask;
             var movie = _mapper.Map<Movie>(movieAddModel);
-            _dbContext.Movies.Add(movie);
-            _dbContext.SaveChanges();
+            await _dbContext.Movies.AddAsync(movie);
+            await _dbContext.SaveChangesAsync();
             return NoContent();
         }
     }

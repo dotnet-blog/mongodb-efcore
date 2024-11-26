@@ -4,6 +4,10 @@
     <TargetFramework>net8.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
+    <DocumentationFile>bin\$(Configuration)\$(TargetFramework)\$(MSBuildThisFileName).xml</DocumentationFile>
+    <Description>Samples.MongoDb.EFCore.Api</Description>
+    <InformationalVersion>00000000.0</InformationalVersion>
+    <ProjectGuid>{CEB62D57-785C-4A8C-AA02-37442025D325}</ProjectGuid>
   </PropertyGroup>
 
   <ItemGroup>
