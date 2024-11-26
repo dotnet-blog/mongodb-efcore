@@ -34,9 +34,10 @@ namespace Samples.MongoDb.EFCore.Api.Controllers
 
         [HttpGet("{id}")]
         [SwaggerResponse((int)HttpStatusCode.OK, Type = typeof(IEnumerable<MovieViewModel>), Description = "Movie details")]
-        public async Task<ActionResult<IEnumerable<Movie>>> GetMovie(Guid id)
+        public async Task<ActionResult<IEnumerable<Movie>>> GetMovie(string id)
         {
-            var movie = await _dbContext.Movies.AsNoTracking().SingleAsync<Movie>(m => m._id == id);
+            var guidId = Guid.Parse(id);
+            var movie = await _dbContext.Movies.AsNoTracking().SingleAsync<Movie>(m => m._id == guidId);
             var movieViewModel = _mapper.Map<MovieViewModel>(movie);
             return Ok(movieViewModel);
         }
@@ -50,7 +51,9 @@ namespace Samples.MongoDb.EFCore.Api.Controllers
             var movie = _mapper.Map<Movie>(movieAddModel);
             await _dbContext.Movies.AddAsync(movie);
             await _dbContext.SaveChangesAsync();
-            return NoContent();
+            return CreatedAtAction(actionName: nameof(GetMovie), 
+                                   routeValues: new { id = movie._id.ToString("N") }, 
+                                   value: new { id = movie._id.ToString("N") });
         }
     }
 }
