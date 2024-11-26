@@ -12,10 +12,10 @@ namespace Samples.MongoDb.EFCore.Api.Mappings
         public MovieMappings()
         {
             CreateMap<MovieAddModel, Movie>()
-                .ForMember(d => d._id, m => m.MapFrom(s => Guid.NewGuid()));
+                .ForMember(d => d._id, m => m.Ignore());
 
             CreateMap<Movie, MovieViewModel>()
-                .ForMember(d => d.Id, m => m.MapFrom(s => s._id.ToString("N")));
+                .ForMember(d => d.Id, m => m.MapFrom(s => s._id));
         }
     }
 }

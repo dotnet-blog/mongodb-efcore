@@ -24,7 +24,7 @@ builder.Services.AddDbContext<MediaLibraryDbContext>(options =>
 });
 
 builder.Services.AddSingleton<IConnectionMultiplexer>(provider => ConnectionMultiplexer.Connect(builder.Configuration.GetConnectionString("SequencesRedis")));
-builder.Services.AddScoped<IDatabase>((provider) =>
+builder.Services.AddScoped<StackExchange.Redis.IDatabase>((provider) =>
 {
     var multiplexer = provider.GetService<IConnectionMultiplexer>();
     return multiplexer.GetDatabase();

@@ -24,6 +24,7 @@ namespace Samples.MongoDb.EFCore.Api.Controllers
         {
             _dbContext = dbContext;
             _mapper = mapper;
+            _redisDatabase = redisDatabase;
         }
 
         [HttpGet]
