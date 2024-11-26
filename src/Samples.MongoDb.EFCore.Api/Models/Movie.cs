@@ -6,13 +6,13 @@ namespace Samples.MongoDb.EFCore.Api.Models
     public class Movie
     {
         [Required]
-        public required Guid _id { get; set; }
+        public required long _id { get; set; }
 
         [Required]
         public required string Title { get; set; }
 
         [Required]
-        public required string Rated { get; set; }
+        public required double Rated { get; set; }
 
         [Required]
         public required string Synopsis { get; set; }

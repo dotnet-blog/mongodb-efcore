@@ -5,6 +5,18 @@ VisualStudioVersion = 17.12.35506.116
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Samples.MongoDb.EFCore.Api", "Samples.MongoDb.EFCore.Api\Samples.MongoDb.EFCore.Api.csproj", "{DAFECF9F-A1A7-4311-8EFA-032B3A2D3EE2}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "docker", "docker", "{465BECAB-B080-4DBD-8982-701460D093BC}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "redis", "redis", "{CF67F2CB-8A26-4916-9A0C-764FA6EF3D8A}"
+	ProjectSection(SolutionItems) = preProject
+		..\docker\redis\docker-compose.yaml = ..\docker\redis\docker-compose.yaml
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "mongodb", "mongodb", "{E36ABCE4-8A2C-465F-8533-1B5F09BBD083}"
+	ProjectSection(SolutionItems) = preProject
+		..\docker\mongodb\docker-compose.yaml = ..\docker\mongodb\docker-compose.yaml
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -18,5 +30,9 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{CF67F2CB-8A26-4916-9A0C-764FA6EF3D8A} = {465BECAB-B080-4DBD-8982-701460D093BC}
+		{E36ABCE4-8A2C-465F-8533-1B5F09BBD083} = {465BECAB-B080-4DBD-8982-701460D093BC}
 	EndGlobalSection
 EndGlobal

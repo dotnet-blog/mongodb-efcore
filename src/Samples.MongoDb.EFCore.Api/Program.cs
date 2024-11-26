@@ -1,6 +1,8 @@
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 using Samples.MongoDb.EFCore.Api;
 using Samples.MongoDb.EFCore.Api.Settings;
+using StackExchange.Redis;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -21,6 +23,13 @@ builder.Services.AddDbContext<MediaLibraryDbContext>(options =>
         databaseName: mediaLibraryDatabase.DatabaseName);
 });
 
+builder.Services.AddSingleton<IConnectionMultiplexer>(provider => ConnectionMultiplexer.Connect(builder.Configuration.GetConnectionString("SequencesRedis")));
+builder.Services.AddScoped<IDatabase>((provider) =>
+{
+    var multiplexer = provider.GetService<IConnectionMultiplexer>();
+    return multiplexer.GetDatabase();
+
+});
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
