@@ -15,16 +15,6 @@ namespace Samples.MongoDb.EFCore.Api
         {
         }
 
-        internal class ObjectIdValueGenerator : ValueGenerator<string>
-        {
-            public override bool GeneratesTemporaryValues => false;
-
-            public override string Next(EntityEntry entry)
-            {
-                return ObjectId.GenerateNewId().ToString();
-            }
-        }
-
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
