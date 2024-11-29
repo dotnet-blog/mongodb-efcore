@@ -17,6 +17,11 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "mongodb", "mongodb", "{E36A
 		..\docker\mongodb\docker-compose.yaml = ..\docker\mongodb\docker-compose.yaml
 	EndProjectSection
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "rabbitmq", "rabbitmq", "{CCE44F28-9246-4324-9EA7-796467985687}"
+	ProjectSection(SolutionItems) = preProject
+		..\docker\rabbitmq\docker-compose.yaml = ..\docker\rabbitmq\docker-compose.yaml
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -34,5 +39,6 @@ Global
 	GlobalSection(NestedProjects) = preSolution
 		{CF67F2CB-8A26-4916-9A0C-764FA6EF3D8A} = {465BECAB-B080-4DBD-8982-701460D093BC}
 		{E36ABCE4-8A2C-465F-8533-1B5F09BBD083} = {465BECAB-B080-4DBD-8982-701460D093BC}
+		{CCE44F28-9246-4324-9EA7-796467985687} = {465BECAB-B080-4DBD-8982-701460D093BC}
 	EndGlobalSection
 EndGlobal
