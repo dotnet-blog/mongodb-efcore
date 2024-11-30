@@ -1,6 +1,15 @@
-### :warning: Before you continue with the PR and assign the reviewer
+## :question: This PR is for the:
 
-- [ ] There are no SQL scripts that need to be run manually?
-- [ ] All Swagger exposed endpoints match method return type?
-- [ ] You tested everything on your local and on DEV environment?
-- [ ] You are merging to the proper branch?
+- [ ] bug report
+- [ ] feature request
+
+### :heavy_check_mark: Checklist:
+
+- [ ] My code follows the style guidelines of this project
+- [ ] I have performed a self-review of my code
+- [ ] I have commented my code, particularly in hard-to-understand areas
+- [ ] I have made corresponding changes to the documentation
+- [ ] My changes do not generate new warnings
+- [ ] I have added tests that prove my fix is effective or that my feature works
+- [ ] New and existing unit tests pass locally with my changes
+- [ ] Any dependent changes have been merged and published in downstream modules
