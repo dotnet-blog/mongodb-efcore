@@ -13,5 +13,6 @@ services:
       - "5672:5672"
     restart: always
     volumes:
+      - D:/Containers/rabbitmq/enabled_plugins:/etc/rabbitmq/enabled_plugins
       - D:/Containers/rabbitmq/data/:/var/lib/rabbitmq/
       - D:/Containers/rabbitmq/log/:/var/log/rabbitmq/
