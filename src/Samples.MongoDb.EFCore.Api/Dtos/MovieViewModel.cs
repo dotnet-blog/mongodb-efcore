@@ -11,7 +11,7 @@ namespace Samples.MongoDb.EFCore.Api.Dtos
         public required string Title { get; set; }
 
         [Required]
-        public required string Rated { get; set; }
+        public required double Rated { get; set; }
 
         [Required]
         public required string Synopsis { get; set; }
