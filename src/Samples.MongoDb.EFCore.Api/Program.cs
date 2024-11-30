@@ -1,5 +1,6 @@
 using MassTransit;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
 using Samples.MongoDb.EFCore.Api;
 using Samples.MongoDb.EFCore.Api.Consumers;
@@ -51,6 +52,13 @@ builder.Services.AddMassTransit(x =>
 
     x.UsingRabbitMq((context, cfg) =>
     {
+        var rabbitMqSettings = builder.Configuration.GetSection("RabbitMq").Get<RabbitMqSettings>();
+        cfg.Host(rabbitMqSettings.Url, h =>
+        {
+            h.Username(rabbitMqSettings.Username);
+            h.Password(rabbitMqSettings.Password);
+        });
+
         cfg.ConfigureEndpoints(context);
     });
 });
