@@ -1,9 +1,8 @@
 using MassTransit;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Options;
 using Samples.MongoDb.EFCore.Api;
 using Samples.MongoDb.EFCore.Api.Consumers;
+using Samples.MongoDb.EFCore.Api.Services;
 using Samples.MongoDb.EFCore.Api.Settings;
 using StackExchange.Redis;
 
@@ -13,7 +12,8 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
 builder.Services.AddRouting(options => options.LowercaseUrls = true);
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+
+//Swagger
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
@@ -34,33 +34,48 @@ builder.Services.AddSingleton<IConnectionMultiplexer>(provider => ConnectionMult
 builder.Services.AddScoped<StackExchange.Redis.IDatabase>((provider) =>
 {
     var multiplexer = provider.GetService<IConnectionMultiplexer>();
-    return multiplexer.GetDatabase();
+    return multiplexer!.GetDatabase();
 
 });
 
 //MassTransit RabbitMq
 builder.Services.AddMassTransit(x =>
 {
-    x.AddConsumer<MovieAddedEventConsumer>();
-
-    x.AddConfigureEndpointsCallback((context, name, cfg) =>
+    x.AddConfigureEndpointsCallback((context, name, config) =>
     {
-        cfg.UseMessageRetry(r => r.Interval(
-            retryCount: 3, 
-            interval: (int)TimeSpan.FromSeconds(3).TotalMilliseconds));
-    });
-
-    x.UsingRabbitMq((context, cfg) =>
-    {
-        var rabbitMqSettings = builder.Configuration.GetSection("RabbitMq").Get<RabbitMqSettings>();
-        cfg.Host(rabbitMqSettings.Url, h =>
+        config.UseMessageRetry(r =>
         {
-            h.Username(rabbitMqSettings.Username);
-            h.Password(rabbitMqSettings.Password);
-        });
+            r.Interval(retryCount: 3, interval: (int)TimeSpan.FromSeconds(3).TotalMilliseconds);
+            r.Ignore<ArgumentNullException>();
 
-        cfg.ConfigureEndpoints(context);
+        });
     });
+
+    x.AddConsumer<MovieAddedEventConsumer>(config =>
+    {
+        config.UseMessageRetry(r =>
+        {
+            //r.Handle<System.Net.WebClie>
+        });
+    });
+
+    x.UsingRabbitMq((context, config) =>
+        {
+            var rabbitMqSettings = builder.Configuration.GetSection("RabbitMq").Get<RabbitMqSettings>();
+            config.Host(rabbitMqSettings!.Url, h =>
+            {
+                h.Username(rabbitMqSettings.Username);
+                h.Password(rabbitMqSettings.Password);
+            });
+            config.ConfigureEndpoints(context);
+        });
+});
+
+//Add movie info service HttpClient
+var movieInfoService = builder.Configuration.GetSection("MovieInfoService").Get<MovieInfoServiceSettings>();
+builder.Services.AddHttpClient<IMovieInfoService, MovieInfoService>(httpClient =>
+{
+    httpClient.BaseAddress = movieInfoService!.Url;
 });
 
 var app = builder.Build();
