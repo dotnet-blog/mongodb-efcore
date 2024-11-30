@@ -2,11 +2,14 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.EntityFrameworkCore.ValueGeneration.Internal;
 using Samples.MongoDb.EFCore.Api.Dtos;
 using Samples.MongoDb.EFCore.Api.Models;
 using StackExchange.Redis;
 using Swashbuckle.AspNetCore.Annotations;
 using System.Net;
+using MassTransit;
+using Samples.MongoDb.EFCore.Api.Events;
 
 namespace Samples.MongoDb.EFCore.Api.Controllers
 {
@@ -17,14 +20,17 @@ namespace Samples.MongoDb.EFCore.Api.Controllers
         readonly MediaLibraryDbContext _dbContext;
         readonly IMapper _mapper;
         readonly StackExchange.Redis.IDatabase _redisDatabase;
+        readonly IBus _bus;
         public MoviesController(
             MediaLibraryDbContext dbContext,
             IMapper mapper,
-            StackExchange.Redis.IDatabase redisDatabase)
+            StackExchange.Redis.IDatabase redisDatabase,
+            IBus bus)
         {
             _dbContext = dbContext;
             _mapper = mapper;
             _redisDatabase = redisDatabase;
+            _bus = bus;
         }
 
         [HttpGet]
@@ -52,9 +58,10 @@ namespace Samples.MongoDb.EFCore.Api.Controllers
             )
         {
             var movie = _mapper.Map<Movie>(movieAddModel);
-            movie._id = await _redisDatabase.StringIncrementAsync("seq_1");
+            movie._id = await _redisDatabase.StringIncrementAsync("movie_id_sequence");
             await _dbContext.Movies.AddAsync(movie);
             await _dbContext.SaveChangesAsync();
+            await _bus.Publish(new MovieAddedEvent(movie._id));
             return CreatedAtAction(actionName: nameof(GetMovie),
                                    routeValues: new { id = movie._id },
                                    value: movie._id);

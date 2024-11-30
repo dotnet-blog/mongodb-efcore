@@ -1,6 +1,8 @@
+using MassTransit;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Samples.MongoDb.EFCore.Api;
+using Samples.MongoDb.EFCore.Api.Consumers;
 using Samples.MongoDb.EFCore.Api.Settings;
 using StackExchange.Redis;
 
@@ -14,7 +16,10 @@ builder.Services.AddRouting(options => options.LowercaseUrls = true);
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+//AutoMapper
 builder.Services.AddAutoMapper(typeof(Program).Assembly);
+
+//EFCore MongoDb
 var mediaLibraryDatabase = builder.Configuration.GetSection("MediaLibraryDatabase").Get<MediaLibraryDatabaseSettings>();
 builder.Services.AddDbContext<MediaLibraryDbContext>(options =>
 {
@@ -23,6 +28,7 @@ builder.Services.AddDbContext<MediaLibraryDbContext>(options =>
         databaseName: mediaLibraryDatabase.DatabaseName);
 });
 
+//Redis
 builder.Services.AddSingleton<IConnectionMultiplexer>(provider => ConnectionMultiplexer.Connect(builder.Configuration.GetConnectionString("SequencesRedis")));
 builder.Services.AddScoped<StackExchange.Redis.IDatabase>((provider) =>
 {
@@ -30,6 +36,25 @@ builder.Services.AddScoped<StackExchange.Redis.IDatabase>((provider) =>
     return multiplexer.GetDatabase();
 
 });
+
+//MassTransit RabbitMq
+builder.Services.AddMassTransit(x =>
+{
+    x.AddConsumer<MovieAddedEventConsumer>();
+
+    x.AddConfigureEndpointsCallback((context, name, cfg) =>
+    {
+        cfg.UseMessageRetry(r => r.Interval(
+            retryCount: 3, 
+            interval: (int)TimeSpan.FromSeconds(3).TotalMilliseconds));
+    });
+
+    x.UsingRabbitMq((context, cfg) =>
+    {
+        cfg.ConfigureEndpoints(context);
+    });
+});
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
