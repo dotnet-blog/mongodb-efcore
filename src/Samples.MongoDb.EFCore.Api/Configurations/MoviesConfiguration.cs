@@ -23,8 +23,13 @@ namespace Samples.MongoDb.EFCore.Api.Configurations
                 .HasBsonRepresentation(MongoDB.Bson.BsonType.String)
                 .IsRequired();
 
-            builder.Property(x => x.Rated)
-                .HasElementName("rated")
+            builder.Property(x => x.ImdbId)
+               .HasElementName("imdbid")
+               .HasBsonRepresentation(MongoDB.Bson.BsonType.String)
+               .IsRequired(false);
+
+            builder.Property(x => x.Rating)
+                .HasElementName("rating")
                 .HasBsonRepresentation(MongoDB.Bson.BsonType.Double)
                 .IsRequired();
 

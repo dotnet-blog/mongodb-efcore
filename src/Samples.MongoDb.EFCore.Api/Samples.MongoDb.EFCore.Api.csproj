@@ -6,7 +6,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <DocumentationFile>bin\$(Configuration)\$(TargetFramework)\$(MSBuildThisFileName).xml</DocumentationFile>
     <Description>Samples.MongoDb.EFCore.Api</Description>
-    <InformationalVersion>00000000.0</InformationalVersion>
+    <InformationalVersion>0.0.0</InformationalVersion>
     <ProjectGuid>{CEB62D57-785C-4A8C-AA02-37442025D325}</ProjectGuid>
   </PropertyGroup>
 
@@ -16,6 +16,8 @@
     <PackageReference Include="MassTransit" Version="8.3.2" />
     <PackageReference Include="MassTransit.AspNetCore" Version="7.3.1" />
     <PackageReference Include="MassTransit.RabbitMQ" Version="8.3.2" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Versioning" Version="5.1.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Versioning.ApiExplorer" Version="5.1.0" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="8.0.11" />
     <PackageReference Include="MongoDB.EntityFrameworkCore" Version="8.2.0" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="7.0.0" />

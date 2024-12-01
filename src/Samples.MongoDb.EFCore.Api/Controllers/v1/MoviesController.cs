@@ -8,9 +8,10 @@ using System.Net;
 using MassTransit;
 using Samples.MongoDb.EFCore.Api.Events;
 
-namespace Samples.MongoDb.EFCore.Api.Controllers
+namespace Samples.MongoDb.EFCore.Api.Controllers.v1
 {
-    [Route("api/[controller]")]
+    [ApiVersion("1.0")]
+    [Route("api/v{version:apiVersion}/[controller]")]
     [ApiController]
     public class MoviesController : ControllerBase
     {
@@ -34,7 +35,7 @@ namespace Samples.MongoDb.EFCore.Api.Controllers
         [SwaggerResponse((int)HttpStatusCode.OK, Type = typeof(IEnumerable<MovieViewModel>), Description = "List movies")]
         public async Task<ActionResult<IEnumerable<Movie>>> GetMovies()
         {
-            var movies = await _dbContext.Movies.AsNoTracking().ToArrayAsync<Movie>();
+            var movies = await _dbContext.Movies.AsNoTracking().ToArrayAsync();
             var movieViewModels = _mapper.Map<IEnumerable<MovieViewModel>>(movies);
             return Ok(movieViewModels);
         }
@@ -43,7 +44,7 @@ namespace Samples.MongoDb.EFCore.Api.Controllers
         [SwaggerResponse((int)HttpStatusCode.OK, Type = typeof(IEnumerable<MovieViewModel>), Description = "Retrieve movie details")]
         public async Task<ActionResult<IEnumerable<MovieViewModel>>> GetMovie(long id)
         {
-            var movie = await _dbContext.Movies.AsNoTracking().SingleAsync<Movie>(m => m._id == id);
+            var movie = await _dbContext.Movies.AsNoTracking().SingleAsync(m => m._id == id);
             var movieViewModel = _mapper.Map<MovieViewModel>(movie);
             return Ok(movieViewModel);
         }
@@ -68,7 +69,7 @@ namespace Samples.MongoDb.EFCore.Api.Controllers
         [SwaggerResponse((int)HttpStatusCode.OK, Type = typeof(void), Description = "Delete movie")]
         public async Task<ActionResult> DeleteMovie(long id)
         {
-            var movie = await _dbContext.Movies.SingleAsync<Movie>(m => m._id == id);
+            var movie = await _dbContext.Movies.SingleAsync(m => m._id == id);
 
             _dbContext.Movies.Remove(movie);
             await _dbContext.SaveChangesAsync();
