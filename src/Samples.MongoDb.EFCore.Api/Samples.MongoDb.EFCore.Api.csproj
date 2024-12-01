@@ -11,6 +11,8 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="AspNetCore.HealthChecks.Rabbitmq" Version="8.0.2" />
+    <PackageReference Include="AspNetCore.HealthChecks.Redis" Version="8.0.1" />
     <PackageReference Include="AutoMapper" Version="13.0.1" />
     <PackageReference Include="Flurl" Version="4.0.0" />
     <PackageReference Include="MassTransit" Version="8.3.2" />
@@ -26,7 +28,6 @@
     <PackageReference Include="Swashbuckle.AspNetCore.Annotations" Version="7.0.0" />
     <PackageReference Include="Swashbuckle.AspNetCore.SwaggerUI" Version="7.0.0" />
     <PackageReference Include="StackExchange.Redis" Version="2.8.16" />
-
   </ItemGroup>
 
 </Project>

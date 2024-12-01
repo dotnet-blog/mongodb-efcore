@@ -9,7 +9,6 @@ using Flurl;
 using Microsoft.AspNetCore.Mvc;
 using System.Reflection;
 using Microsoft.AspNetCore.Mvc.ApiExplorer;
-using Microsoft.Extensions.DependencyInjection;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -114,6 +113,7 @@ builder.Services.AddStackExchangeRedisCache(options =>
 #endregion
 
 #region MassTransit RabbitMq
+var rabbitMqConnectionString = builder.Configuration.GetConnectionString("RabbitMq")!;
 builder.Services.AddMassTransit(x =>
 {
     x.AddConfigureEndpointsCallback((context, name, config) =>
@@ -136,12 +136,7 @@ builder.Services.AddMassTransit(x =>
 
     x.UsingRabbitMq((context, config) =>
         {
-            var rabbitMqSettings = builder.Configuration.GetSection("RabbitMq").Get<RabbitMqSettings>();
-            config.Host(rabbitMqSettings!.Url, h =>
-            {
-                h.Username(rabbitMqSettings.Username);
-                h.Password(rabbitMqSettings.Password);
-            });
+            config.Host(rabbitMqConnectionString);
             config.ConfigureEndpoints(context);
         });
 });
@@ -151,13 +146,15 @@ builder.Services.AddMassTransit(x =>
 var movieInfoService = builder.Configuration.GetSection("MovieInfoService").Get<MovieInfoServiceSettings>();
 builder.Services.AddHttpClient<IMovieInfoService, MovieInfoService>(httpClient =>
 {
-    httpClient.BaseAddress = movieInfoService.Url.AppendQueryParam("apikey",movieInfoService.ApiKey).ToUri();
+    httpClient.BaseAddress = movieInfoService.Url.AppendQueryParam("apikey", movieInfoService.ApiKey).ToUri();
 });
 #endregion
 
 #region Healthchecks
 builder.Services.AddHealthChecks()
-    .AddDbContextCheck<MediaLibraryDbContext>();
+    .AddDbContextCheck<MediaLibraryDbContext>()
+    .AddRedis(redisConnectionString)
+    .AddRabbitMQ(rabbitConnectionString: rabbitMqConnectionString);
 
 #endregion
 
