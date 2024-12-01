@@ -25,7 +25,7 @@ namespace Samples.MongoDb.EFCore.Api.Consumers
                 var movieInfo = await _movieInfoService.GetMovieInfo(movie.ImdbId);
                 if (movieInfo != null)
                 {
-                    movie.Rating = int.Parse(movieInfo.imdbRating);
+                    movie.Rating = double.Parse(movieInfo.imdbRating);
                     movie.Synopsis = movie.Synopsis == null ? movieInfo.Plot : movie.Synopsis;
                     await _dbContext.SaveChangesAsync();
                 }

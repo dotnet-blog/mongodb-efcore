@@ -98,12 +98,18 @@ builder.Services.AddDbContext<MediaLibraryDbContext>(options =>
 #endregion
 
 #region RedisDb
-builder.Services.AddSingleton<IConnectionMultiplexer>(provider => ConnectionMultiplexer.Connect(builder.Configuration.GetConnectionString("RedisDb")!));
+var redisConnectionString = builder.Configuration.GetConnectionString("RedisDb")!;
+builder.Services.AddSingleton<IConnectionMultiplexer>(provider => ConnectionMultiplexer.Connect(redisConnectionString));
 builder.Services.AddScoped<StackExchange.Redis.IDatabase>((provider) =>
 {
     var multiplexer = provider.GetService<IConnectionMultiplexer>();
     return multiplexer!.GetDatabase();
 
+});
+
+builder.Services.AddStackExchangeRedisCache(options =>
+{
+    options.Configuration = redisConnectionString;
 });
 #endregion
 
