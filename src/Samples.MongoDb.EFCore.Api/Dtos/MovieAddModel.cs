@@ -7,8 +7,7 @@ namespace Samples.MongoDb.EFCore.Api.Dtos
         [Required]
         public required string Title { get; set; }
 
-        [Required]
-        public required double Rated { get; set; }
+        public string? ImdbId { get; set; }
 
         [Required]
         public required string Synopsis { get; set; }

@@ -1,11 +1,8 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Storage;
-using Microsoft.EntityFrameworkCore.ValueGeneration.Internal;
 using Samples.MongoDb.EFCore.Api.Dtos;
 using Samples.MongoDb.EFCore.Api.Models;
-using StackExchange.Redis;
 using Swashbuckle.AspNetCore.Annotations;
 using System.Net;
 using MassTransit;
