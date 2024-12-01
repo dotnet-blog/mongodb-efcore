@@ -399,3 +399,4 @@ FodyWeavers.xsd
 
 # Solution properties folder
 **/Properties/launchSettings.json
+launchSettings.json
