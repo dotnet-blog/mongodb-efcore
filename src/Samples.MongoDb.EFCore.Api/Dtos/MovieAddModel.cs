@@ -9,7 +9,6 @@ namespace Samples.MongoDb.EFCore.Api.Dtos
 
         public string? ImdbId { get; set; }
 
-        [Required]
-        public required string Synopsis { get; set; }
+        public string? Synopsis { get; set; }
     }
 }

@@ -13,10 +13,8 @@ namespace Samples.MongoDb.EFCore.Api.Models
 
         public string? ImdbId { get; set; }
 
-        [Required]
-        public required double Rating { get; set; }
+        public double? Rating { get; set; }
 
-        [Required]
-        public required string Synopsis { get; set; }
+        public string? Synopsis { get; set; }
     }
 }

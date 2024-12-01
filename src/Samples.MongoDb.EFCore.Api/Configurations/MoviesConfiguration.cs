@@ -31,12 +31,12 @@ namespace Samples.MongoDb.EFCore.Api.Configurations
             builder.Property(x => x.Rating)
                 .HasElementName("rating")
                 .HasBsonRepresentation(MongoDB.Bson.BsonType.Double)
-                .IsRequired();
+                .IsRequired(false);
 
             builder.Property(x => x.Synopsis)
                 .HasElementName("synopsis")
                 .HasBsonRepresentation(MongoDB.Bson.BsonType.String)
-                .IsRequired();
+                .IsRequired(false);
 
         }
     }
