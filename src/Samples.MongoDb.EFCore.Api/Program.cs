@@ -7,9 +7,9 @@ using Samples.MongoDb.EFCore.Api.Settings;
 using StackExchange.Redis;
 using Flurl;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Hosting;
 using System.Reflection;
 using Microsoft.AspNetCore.Mvc.ApiExplorer;
+using Microsoft.Extensions.DependencyInjection;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -155,7 +155,16 @@ builder.Services.AddHttpClient<IMovieInfoService, MovieInfoService>(httpClient =
 });
 #endregion
 
+#region Healthchecks
+builder.Services.AddHealthChecks()
+    .AddDbContextCheck<MediaLibraryDbContext>();
+
+#endregion
+
 var app = builder.Build();
+
+// Configure healthcheck pipeline
+app.MapHealthChecks("/api/health");
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
