@@ -5,6 +5,7 @@ using Samples.MongoDb.EFCore.Api.Consumers;
 using Samples.MongoDb.EFCore.Api.Services;
 using Samples.MongoDb.EFCore.Api.Settings;
 using StackExchange.Redis;
+using Flurl;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -13,14 +14,16 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
 builder.Services.AddRouting(options => options.LowercaseUrls = true);
 
-//Swagger
+#region Swagger
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+#endregion
 
-//AutoMapper
+#region AutoMapper
 builder.Services.AddAutoMapper(typeof(Program).Assembly);
+#endregion
 
-//EFCore MongoDb
+#region EFCore MongoDb
 var mediaLibraryDatabase = builder.Configuration.GetSection("MediaLibraryDatabase").Get<MediaLibraryDatabaseSettings>();
 builder.Services.AddDbContext<MediaLibraryDbContext>(options =>
 {
@@ -28,17 +31,19 @@ builder.Services.AddDbContext<MediaLibraryDbContext>(options =>
         connectionString: mediaLibraryDatabase!.ConnectionString,
         databaseName: mediaLibraryDatabase.DatabaseName);
 });
+#endregion
 
-//Redis
-builder.Services.AddSingleton<IConnectionMultiplexer>(provider => ConnectionMultiplexer.Connect(builder.Configuration.GetConnectionString("SequencesRedis")));
+#region RedisDb
+builder.Services.AddSingleton<IConnectionMultiplexer>(provider => ConnectionMultiplexer.Connect(builder.Configuration.GetConnectionString("RedisDb")!));
 builder.Services.AddScoped<StackExchange.Redis.IDatabase>((provider) =>
 {
     var multiplexer = provider.GetService<IConnectionMultiplexer>();
     return multiplexer!.GetDatabase();
 
 });
+#endregion
 
-//MassTransit RabbitMq
+#region MassTransit RabbitMq
 builder.Services.AddMassTransit(x =>
 {
     x.AddConfigureEndpointsCallback((context, name, config) =>
@@ -70,13 +75,15 @@ builder.Services.AddMassTransit(x =>
             config.ConfigureEndpoints(context);
         });
 });
+#endregion
 
-//Add movie info service HttpClient
+#region OpenMoviedDb service HttpClient
 var movieInfoService = builder.Configuration.GetSection("MovieInfoService").Get<MovieInfoServiceSettings>();
 builder.Services.AddHttpClient<IMovieInfoService, MovieInfoService>(httpClient =>
 {
-    httpClient.BaseAddress = movieInfoService!.Url;
+    httpClient.BaseAddress = movieInfoService.Url.AppendQueryParam("apikey",movieInfoService.ApiKey).ToUri();
 });
+#endregion
 
 var app = builder.Build();
 
