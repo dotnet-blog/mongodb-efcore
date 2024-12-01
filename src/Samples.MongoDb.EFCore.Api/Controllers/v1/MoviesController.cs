@@ -10,6 +10,9 @@ using Samples.MongoDb.EFCore.Api.Events;
 
 namespace Samples.MongoDb.EFCore.Api.Controllers.v1
 {
+    /// <summary>
+    /// Movie library demo
+    /// </summary>
     [ApiVersion("1.0")]
     [Route("api/v{version:apiVersion}/[controller]")]
     [ApiController]
@@ -31,6 +34,10 @@ namespace Samples.MongoDb.EFCore.Api.Controllers.v1
             _bus = bus;
         }
 
+        /// <summary>
+        /// Find movies
+        /// </summary>
+        /// <returns></returns>
         [HttpGet]
         [SwaggerResponse((int)HttpStatusCode.OK, Type = typeof(IEnumerable<MovieViewModel>), Description = "List movies")]
         public async Task<ActionResult<IEnumerable<Movie>>> GetMovies()
@@ -40,6 +47,11 @@ namespace Samples.MongoDb.EFCore.Api.Controllers.v1
             return Ok(movieViewModels);
         }
 
+        /// <summary>
+        /// Get movie
+        /// </summary>
+        /// <param name="id">Movie id</param>
+        /// <returns></returns>
         [HttpGet("{id}")]
         [SwaggerResponse((int)HttpStatusCode.OK, Type = typeof(IEnumerable<MovieViewModel>), Description = "Retrieve movie details")]
         public async Task<ActionResult<IEnumerable<MovieViewModel>>> GetMovie(long id)
@@ -49,6 +61,11 @@ namespace Samples.MongoDb.EFCore.Api.Controllers.v1
             return Ok(movieViewModel);
         }
 
+        /// <summary>
+        /// Adds new movie to library
+        /// </summary>
+        /// <param name="movieAddModel"></param>
+        /// <returns></returns>
         [HttpPost]
         [SwaggerResponse((int)HttpStatusCode.NoContent, Type = typeof(long), Description = "Add movie")]
         public async Task<ActionResult<long>> AddMovie(
@@ -65,6 +82,11 @@ namespace Samples.MongoDb.EFCore.Api.Controllers.v1
                                    value: movie._id);
         }
 
+        /// <summary>
+        /// Removes movie from the library
+        /// </summary>
+        /// <param name="id">Movie id</param>
+        /// <returns></returns>
         [HttpDelete("{id}")]
         [SwaggerResponse((int)HttpStatusCode.OK, Type = typeof(void), Description = "Delete movie")]
         public async Task<ActionResult> DeleteMovie(long id)
