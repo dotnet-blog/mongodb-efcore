@@ -159,9 +159,7 @@ builder.Services.AddHttpClient<IMovieInfoService, MovieInfoService>(httpClient =
 #region Healthchecks
 builder.Services.AddHealthChecks()
     .AddDbContextCheck<MediaLibraryDbContext>()
-    .AddRedis(redisConnectionString: redisConnectionString)
-    .AddRabbitMQ(rabbitConnectionString: "amqp://rabbitmq:rabbitmq@localhost/sample.api");
-
+    .AddRedis(redisConnectionString: redisConnectionString);
 #endregion
 
 var app = builder.Build();
