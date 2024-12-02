@@ -9,6 +9,11 @@ using Flurl;
 using Microsoft.AspNetCore.Mvc;
 using System.Reflection;
 using Microsoft.AspNetCore.Mvc.ApiExplorer;
+using RabbitMQ.Client;
+using Microsoft.AspNetCore.Diagnostics.HealthChecks;
+using Microsoft.Extensions.Diagnostics.HealthChecks;
+using System.Net.Mime;
+using System.Text.Json;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -153,16 +158,36 @@ builder.Services.AddHttpClient<IMovieInfoService, MovieInfoService>(httpClient =
 #region Healthchecks
 builder.Services.AddHealthChecks()
     .AddDbContextCheck<MediaLibraryDbContext>()
-    .AddRedis(redisConnectionString)
-    .AddRabbitMQ(rabbitConnectionString: rabbitMqConnectionString);
+    .AddRedis(redisConnectionString: redisConnectionString)
+    .AddRabbitMQ(rabbitConnectionString: "amqp://rabbitmq:rabbitmq@localhost/sample.api");
 
 #endregion
 
 var app = builder.Build();
 
-// Configure healthcheck pipeline
-app.MapHealthChecks("/api/health");
-
+#region Configure healthcheck pipeline
+var options = new HealthCheckOptions();
+options.ResultStatusCodes[HealthStatus.Unhealthy] = StatusCodes.Status503ServiceUnavailable;
+options.ResponseWriter = async (ctx, rpt) =>
+{
+    var result = JsonSerializer.Serialize(new
+    {
+        status = rpt.Status.ToString(),
+        services = rpt.Entries.Select(e => new
+        {
+            name = e.Key,
+            healthy = e.Value.Status == HealthStatus.Healthy,
+            status = Enum.GetName(typeof(HealthStatus), e.Value.Status)
+        })
+    }, new JsonSerializerOptions { 
+        WriteIndented = true ,
+        DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull
+    });
+    ctx.Response.ContentType = MediaTypeNames.Application.Json;
+    await ctx.Response.WriteAsync(result);
+};
+app.MapHealthChecks("/api/health", options);
+#endregion
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
