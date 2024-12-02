@@ -14,6 +14,7 @@ using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using System.Net.Mime;
 using System.Text.Json;
+using HealthChecks.UI.Client;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -166,28 +167,13 @@ builder.Services.AddHealthChecks()
 var app = builder.Build();
 
 #region Configure healthcheck pipeline
-var options = new HealthCheckOptions();
-options.ResultStatusCodes[HealthStatus.Unhealthy] = StatusCodes.Status503ServiceUnavailable;
-options.ResponseWriter = async (ctx, rpt) =>
-{
-    var result = JsonSerializer.Serialize(new
+app.MapHealthChecks("/api/health",
+    new HealthCheckOptions
     {
-        status = rpt.Status.ToString(),
-        services = rpt.Entries.Select(e => new
-        {
-            name = e.Key,
-            healthy = e.Value.Status == HealthStatus.Healthy,
-            status = Enum.GetName(typeof(HealthStatus), e.Value.Status)
-        })
-    }, new JsonSerializerOptions { 
-        WriteIndented = true ,
-        DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull
+        ResponseWriter = UIResponseWriter.WriteHealthCheckUIResponse
     });
-    ctx.Response.ContentType = MediaTypeNames.Application.Json;
-    await ctx.Response.WriteAsync(result);
-};
-app.MapHealthChecks("/api/health", options);
 #endregion
+
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
