@@ -11,3 +11,8 @@ This project is showcase project for using the following in ASP.NET Core:
      - Publishing and consuming messages via MassTransit 
      - Fault tolerance with delayer message retry
      - RabbitMQ docker-compose for running the instance
+
+## Build docker image
+```
+docker build -t counter-image -f Dockerfile .
+```
