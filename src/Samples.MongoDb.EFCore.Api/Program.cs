@@ -190,6 +190,8 @@ builder.Services.AddQuartzHostedService(q => q.WaitForJobsToComplete = true);
 
 var app = builder.Build();
 
+app.UseExceptionHandling();
+
 #region Configure healthcheck pipeline
 app.MapHealthChecks("/api/health",
     new HealthCheckOptions
