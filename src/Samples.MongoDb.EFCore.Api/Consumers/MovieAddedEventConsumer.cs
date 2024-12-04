@@ -27,6 +27,7 @@ namespace Samples.MongoDb.EFCore.Api.Consumers
                 {
                     movie.Rating = double.Parse(movieInfo.imdbRating);
                     movie.Synopsis = movie.Synopsis == null ? movieInfo.Plot : movie.Synopsis;
+                    movie.DateTimeModified = DateTime.UtcNow;
                     await _dbContext.SaveChangesAsync();
                 }
             }

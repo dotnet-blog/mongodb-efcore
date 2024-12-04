@@ -74,6 +74,7 @@ namespace Samples.MongoDb.EFCore.Api.Controllers.v1
         {
             var movie = _mapper.Map<Movie>(movieAddModel);
             movie._id = await _redisDatabase.StringIncrementAsync("movie_id_sequence");
+            movie.DateTimeCreated = DateTime.UtcNow;
             await _dbContext.Movies.AddAsync(movie);
             await _dbContext.SaveChangesAsync();
             await _bus.Publish(new MovieAddedEvent(movie._id));

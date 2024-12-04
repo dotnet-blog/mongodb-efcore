@@ -16,5 +16,9 @@ namespace Samples.MongoDb.EFCore.Api.Models
         public double? Rating { get; set; }
 
         public string? Synopsis { get; set; }
+
+        [Required]
+        public DateTime DateTimeCreated { get; set; }
+        public DateTime? DateTimeModified { get; set; }
     }
 }
