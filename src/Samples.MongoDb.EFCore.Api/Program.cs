@@ -15,6 +15,9 @@ using Microsoft.Extensions.Diagnostics.HealthChecks;
 using System.Net.Mime;
 using System.Text.Json;
 using HealthChecks.UI.Client;
+using Quartz;
+using Samples.MongoDb.EFCore.Api.Jobs;
+using Samples.MongoDb.EFCore.Api.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -160,6 +163,18 @@ builder.Services.AddHttpClient<IMovieInfoService, MovieInfoService>(httpClient =
 builder.Services.AddHealthChecks()
     .AddDbContextCheck<MediaLibraryDbContext>()
     .AddRedis(redisConnectionString: redisConnectionString);
+#endregion
+
+#region Quartz jobs
+builder.Services.AddQuartz(q =>
+  {
+      q.AddJob<MoviesInfoCheckJob>(options => options.WithIdentity(nameof(MoviesInfoCheckJob)));
+      q.AddTrigger(opts => opts
+          .ForJob(nameof(MoviesInfoCheckJob))
+          .WithIdentity($"{nameof(MoviesInfoCheckJob)}-Trigger")
+          .WithCronSchedule(builder.Configuration.GetJobSchedule<string>(nameof(MoviesInfoCheckJob))));
+  });
+builder.Services.AddQuartzHostedService(q => q.WaitForJobsToComplete = true);
 #endregion
 
 var app = builder.Build();

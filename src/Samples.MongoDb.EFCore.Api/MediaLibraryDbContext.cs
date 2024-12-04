@@ -1,7 +1,4 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.ChangeTracking;
-using Microsoft.EntityFrameworkCore.ValueGeneration;
-using MongoDB.Bson;
 using Samples.MongoDb.EFCore.Api.Models;
 
 namespace Samples.MongoDb.EFCore.Api

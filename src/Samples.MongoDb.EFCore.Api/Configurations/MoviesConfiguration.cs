@@ -38,6 +38,15 @@ namespace Samples.MongoDb.EFCore.Api.Configurations
                 .HasBsonRepresentation(MongoDB.Bson.BsonType.String)
                 .IsRequired(false);
 
+            builder.Property(x => x.DateTimeCreated)
+              .HasElementName("dateTimeCreated")
+              .HasBsonRepresentation(MongoDB.Bson.BsonType.DateTime)
+              .IsRequired();
+
+            builder.Property(x => x.DateTimeModified)
+              .HasElementName("dateTimeModified")
+              .HasBsonRepresentation(MongoDB.Bson.BsonType.DateTime)
+              .IsRequired(false);
         }
     }
 }
