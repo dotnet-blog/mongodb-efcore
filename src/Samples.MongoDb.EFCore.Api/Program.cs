@@ -14,6 +14,7 @@ using HealthChecks.UI.Client;
 using Quartz;
 using Samples.MongoDb.EFCore.Api.Jobs;
 using Samples.MongoDb.EFCore.Api.Extensions;
+using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -21,6 +22,20 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
 builder.Services.AddRouting(options => options.LowercaseUrls = true);
+
+builder.Services.AddHttpContextAccessor();
+#region Logging
+
+var s = builder.Services;
+Log.Logger = new LoggerConfiguration()
+    .Enrich.FromLogContext()
+    .Enrich.WithCorrelationIdHeader("CorelationId")
+    .ReadFrom.Configuration(builder.Configuration)
+    .CreateLogger();
+
+s.AddLogging(c => c.AddSerilog());
+
+#endregion
 
 #region API version
 
