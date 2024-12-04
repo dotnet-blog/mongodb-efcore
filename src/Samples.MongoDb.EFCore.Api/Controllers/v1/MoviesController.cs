@@ -42,6 +42,8 @@ namespace Samples.MongoDb.EFCore.Api.Controllers.v1
         [SwaggerResponse((int)HttpStatusCode.OK, Type = typeof(IEnumerable<MovieViewModel>), Description = "List movies")]
         public async Task<ActionResult<IEnumerable<Movie>>> GetMovies()
         {
+            throw new Exception("Intentionally thrown exception");
+
             var movies = await _dbContext.Movies.AsNoTracking().ToArrayAsync();
             var movieViewModels = _mapper.Map<IEnumerable<MovieViewModel>>(movies);
             return Ok(movieViewModels);
