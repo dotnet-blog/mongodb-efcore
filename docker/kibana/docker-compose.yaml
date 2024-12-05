@@ -27,9 +27,11 @@ services:
       - elastic
   cerebro:
     container_name: cerebro
-    image: yannart/cerebro:latest
+    image: lmenezes/cerebro:0.9.4
     ports:
       - 9000:9000
+    depends_on:
+      - elasticsearch
     networks:
       - elastic
 
