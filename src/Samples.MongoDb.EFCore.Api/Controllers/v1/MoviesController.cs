@@ -7,6 +7,9 @@ using Swashbuckle.AspNetCore.Annotations;
 using System.Net;
 using MassTransit;
 using Samples.MongoDb.EFCore.Api.Events;
+using Samples.MongoDb.EFCore.Api.Dtos.MediaLibrary;
+using FluentValidation;
+using FluentValidation.AspNetCore;
 
 namespace Samples.MongoDb.EFCore.Api.Controllers.v1
 {
@@ -24,16 +27,19 @@ namespace Samples.MongoDb.EFCore.Api.Controllers.v1
         readonly IMapper _mapper;
         readonly StackExchange.Redis.IDatabase _redisDatabase;
         readonly IBus _bus;
+        readonly IValidator<MovieAddModel> _movieAddModelValidator;
         public MoviesController(
             MediaLibraryDbContext dbContext,
             IMapper mapper,
             StackExchange.Redis.IDatabase redisDatabase,
-            IBus bus)
+            IBus bus,
+            IValidator<MovieAddModel> movieAddModelValidator)
         {
             _dbContext = dbContext;
             _mapper = mapper;
             _redisDatabase = redisDatabase;
             _bus = bus;
+            _movieAddModelValidator = movieAddModelValidator;
         }
 
         /// <summary>
@@ -44,8 +50,6 @@ namespace Samples.MongoDb.EFCore.Api.Controllers.v1
         [SwaggerResponse((int)HttpStatusCode.OK, Type = typeof(IEnumerable<MovieViewModel>), Description = "List movies")]
         public async Task<ActionResult<IEnumerable<Movie>>> GetMovies()
         {
-            throw new Exception("Intentionally thrown exception");
-
             var movies = await _dbContext.Movies.AsNoTracking().ToArrayAsync();
             var movieViewModels = _mapper.Map<IEnumerable<MovieViewModel>>(movies);
             return Ok(movieViewModels);
@@ -74,8 +78,16 @@ namespace Samples.MongoDb.EFCore.Api.Controllers.v1
         [SwaggerResponse((int)HttpStatusCode.NoContent, Type = typeof(long), Description = "Add movie")]
         public async Task<ActionResult<long>> AddMovie(
             [FromBody] MovieAddModel movieAddModel
-            )
+        )
         {
+            FluentValidation.Results.ValidationResult validationResult = await _movieAddModelValidator.ValidateAsync(movieAddModel);
+
+            if (!validationResult.IsValid)
+            {
+                validationResult.AddToModelState(ModelState);
+                return BadRequest(modelState: ModelState);
+            }
+
             var movie = _mapper.Map<Movie>(movieAddModel);
             movie._id = await _redisDatabase.StringIncrementAsync("movie_id_sequence");
             movie.DateTimeCreated = DateTime.UtcNow;

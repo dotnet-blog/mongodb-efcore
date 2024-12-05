@@ -1,5 +1,5 @@
 ﻿using AutoMapper;
-using Samples.MongoDb.EFCore.Api.Dtos;
+using Samples.MongoDb.EFCore.Api.Dtos.MediaLibrary;
 using Samples.MongoDb.EFCore.Api.Models;
 
 namespace Samples.MongoDb.EFCore.Api.Mappings

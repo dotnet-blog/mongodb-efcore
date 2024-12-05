@@ -16,15 +16,45 @@ using Samples.MongoDb.EFCore.Api.Jobs;
 using Samples.MongoDb.EFCore.Api.Extensions;
 using Serilog;
 using Masking.Serilog;
+using Samples.MongoDb.EFCore.Api.Dtos;
+using FluentValidation;
+using Samples.MongoDb.EFCore.Api.Dtos.MediaLibrary;
+using Samples.MongoDb.EFCore.Api.Validators;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
-builder.Services.AddControllers();
+#region Validation
+builder.Services.AddValidatorsFromAssembly(typeof(Program).Assembly);
+#endregion
+
+#region ASP.NET Core
+builder.Services.AddControllers()
+                    .ConfigureApiBehaviorOptions(options =>
+                    {
+                        options.InvalidModelStateResponseFactory = context =>
+                        {
+                            var errorMessages = new List<ErrorMessageModel>();
+                            var errorModel = new ErrorModel()
+                            {
+                                CorrelationId = context.HttpContext.GetLogCorrelationId(),
+                                Error = "Validation failed",
+
+                            };
+                            foreach (var error in context.ModelState)
+                            {
+                                errorMessages.AddRange(error.Value.Errors.Select(e => new ErrorMessageModel(error.Key, e.ErrorMessage)));
+                            }
+                            errorModel.Messages = errorMessages;
+                            return new BadRequestObjectResult(errorModel);
+                        };
+                    });
+
 builder.Services.AddRouting(options => options.LowercaseUrls = true);
 
 builder.Services.AddHttpContextAccessor();
+#endregion
 
 #region Logging
 

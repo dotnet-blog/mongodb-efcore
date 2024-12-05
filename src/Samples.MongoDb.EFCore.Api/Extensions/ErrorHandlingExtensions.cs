@@ -7,6 +7,19 @@ namespace Samples.MongoDb.EFCore.Api.Extensions
 {
     public static class ErrorHandlingExtensions
     {
+        public static string GetLogCorrelationId(this HttpContext context)
+        {
+            string correlationId = string.Empty;
+            var correlationIdProperty = context.Items.SingleOrDefault(i => i.Key.ToString() == "Serilog_CorrelationId").Value as LogEventProperty;
+            if (correlationIdProperty != null)
+            {
+                var correlationIdPropertyValue = ((ScalarValue)correlationIdProperty.Value)?.Value as String;
+                if (!string.IsNullOrWhiteSpace(correlationIdPropertyValue))
+                    correlationId = correlationIdPropertyValue;
+            }
+            return correlationId;
+        }
+
         public static void UseExceptionHandling(
             this WebApplication app)
         {
@@ -14,19 +27,7 @@ namespace Samples.MongoDb.EFCore.Api.Extensions
             {
                 var feature = context.Features.Get<IExceptionHandlerPathFeature>();
                 var exception = feature?.Error;
-                string correlationId = string.Empty;
-
-                #region Extract CorrelationId from the context
-                var correlationIdProperty = context.Items.SingleOrDefault(i => i.Key.ToString() == "Serilog_CorrelationId").Value as LogEventProperty;
-                if (correlationIdProperty != null)
-                {
-                    var correlationIdPropertyValue = ((ScalarValue)correlationIdProperty.Value)?.Value as String;
-
-                    if (!string.IsNullOrWhiteSpace(correlationIdPropertyValue))
-                        correlationId = correlationIdPropertyValue;
-                }
-                #endregion
-
+                string correlationId = context.GetLogCorrelationId();
                 var result = new ErrorModel()
                 {
                     CorrelationId = correlationId,
