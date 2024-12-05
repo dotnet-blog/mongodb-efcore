@@ -7,7 +7,7 @@ namespace Samples.MongoDb.EFCore.Api.Validators
     {
         public MovieAddModelValidator()
         {
-            RuleFor(m => m.Title).MaximumLength(1);
+            RuleFor(m => m.Title).NotNull().NotEmpty().MaximumLength(1);
             RuleFor(m => m.Synopsis).MaximumLength(1024);
         }
     }

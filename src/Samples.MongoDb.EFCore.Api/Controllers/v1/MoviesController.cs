@@ -10,6 +10,8 @@ using Samples.MongoDb.EFCore.Api.Events;
 using Samples.MongoDb.EFCore.Api.Dtos.MediaLibrary;
 using FluentValidation;
 using FluentValidation.AspNetCore;
+using Microsoft.AspNetCore.Mvc.ApplicationModels;
+using Microsoft.Extensions.Options;
 
 namespace Samples.MongoDb.EFCore.Api.Controllers.v1
 {
@@ -28,17 +30,20 @@ namespace Samples.MongoDb.EFCore.Api.Controllers.v1
         readonly StackExchange.Redis.IDatabase _redisDatabase;
         readonly IBus _bus;
         readonly IValidator<MovieAddModel> _movieAddModelValidator;
+        readonly IOptions<ApiBehaviorOptions> _apiBehaviorOptions;
         public MoviesController(
             MediaLibraryDbContext dbContext,
             IMapper mapper,
             StackExchange.Redis.IDatabase redisDatabase,
             IBus bus,
+            IOptions<ApiBehaviorOptions> apiBehaviorOptions,
             IValidator<MovieAddModel> movieAddModelValidator)
         {
             _dbContext = dbContext;
             _mapper = mapper;
             _redisDatabase = redisDatabase;
             _bus = bus;
+            _apiBehaviorOptions = apiBehaviorOptions;
             _movieAddModelValidator = movieAddModelValidator;
         }
 
@@ -62,7 +67,7 @@ namespace Samples.MongoDb.EFCore.Api.Controllers.v1
         /// <returns></returns>
         [HttpGet("{id}")]
         [SwaggerResponse((int)HttpStatusCode.OK, Type = typeof(IEnumerable<MovieViewModel>), Description = "Retrieve movie details")]
-        public async Task<ActionResult<IEnumerable<MovieViewModel>>> GetMovie(long id)
+        public async Task<IActionResult> GetMovie(long id)
         {
             var movie = await _dbContext.Movies.AsNoTracking().SingleAsync(m => m._id == id);
             var movieViewModel = _mapper.Map<MovieViewModel>(movie);
@@ -76,16 +81,15 @@ namespace Samples.MongoDb.EFCore.Api.Controllers.v1
         /// <returns></returns>
         [HttpPost]
         [SwaggerResponse((int)HttpStatusCode.NoContent, Type = typeof(long), Description = "Add movie")]
-        public async Task<ActionResult<long>> AddMovie(
+        public async Task<IActionResult> AddMovie(
             [FromBody] MovieAddModel movieAddModel
         )
         {
             FluentValidation.Results.ValidationResult validationResult = await _movieAddModelValidator.ValidateAsync(movieAddModel);
-
             if (!validationResult.IsValid)
             {
                 validationResult.AddToModelState(ModelState);
-                return BadRequest(modelState: ModelState);
+                return _apiBehaviorOptions.Value.InvalidModelStateResponseFactory(ControllerContext);
             }
 
             var movie = _mapper.Map<Movie>(movieAddModel);
@@ -106,7 +110,7 @@ namespace Samples.MongoDb.EFCore.Api.Controllers.v1
         /// <returns></returns>
         [HttpDelete("{id}")]
         [SwaggerResponse((int)HttpStatusCode.OK, Type = typeof(void), Description = "Delete movie")]
-        public async Task<ActionResult> DeleteMovie(long id)
+        public async Task<IActionResult> DeleteMovie(long id)
         {
             var movie = await _dbContext.Movies.SingleAsync(m => m._id == id);
 
