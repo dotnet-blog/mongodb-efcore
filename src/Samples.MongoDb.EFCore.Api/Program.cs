@@ -14,6 +14,9 @@ using HealthChecks.UI.Client;
 using Quartz;
 using Samples.MongoDb.EFCore.Api.Jobs;
 using Samples.MongoDb.EFCore.Api.Extensions;
+using Serilog;
+using Samples.MongoDb.EFCore.Api.Middlewares;
+using Masking.Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -21,6 +24,25 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
 builder.Services.AddRouting(options => options.LowercaseUrls = true);
+
+builder.Services.AddHttpContextAccessor();
+
+const string CORRELATION_ID_HEADER = "CorrelationId";
+
+#region Logging
+
+var s = builder.Services;
+Log.Logger = new LoggerConfiguration()
+    .Enrich.FromLogContext()
+    .Enrich.WithCorrelationIdHeader(CORRELATION_ID_HEADER)
+    .ReadFrom.Configuration(builder.Configuration)
+    .Destructure.ByMaskingProperties("ApiKey")
+    .Filter.ByExcluding(logEvent => logEvent.Properties.ContainsKey("ApiKey"))
+    .CreateLogger();
+
+s.AddLogging(c => c.AddSerilog());
+
+#endregion
 
 #region API version
 
@@ -174,6 +196,9 @@ builder.Services.AddQuartzHostedService(q => q.WaitForJobsToComplete = true);
 #endregion
 
 var app = builder.Build();
+
+app.UseMiddleware<CorrelationIdHeaderMiddleware>(CORRELATION_ID_HEADER);
+app.UseExceptionHandling(CORRELATION_ID_HEADER);
 
 #region Configure healthcheck pipeline
 app.MapHealthChecks("/api/health",
