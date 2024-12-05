@@ -1,38 +1,45 @@
 ﻿using Microsoft.AspNetCore.Diagnostics;
-using Microsoft.AspNetCore.Mvc.Versioning;
-using static MassTransit.ValidationResultExtensions;
-using System.IO;
 using System.Text.Json;
-using Serilog.Core;
 using Samples.MongoDb.EFCore.Api.Dtos;
-using FluentValidation;
+using Serilog.Events;
 
 namespace Samples.MongoDb.EFCore.Api.Extensions
 {
     public static class ErrorHandlingExtensions
     {
         public static void UseExceptionHandling(
-            this WebApplication app,
-            string correlationKey)
+            this WebApplication app)
         {
             app.UseExceptionHandler(a => a.Run(async context =>
             {
                 var feature = context.Features.Get<IExceptionHandlerPathFeature>();
                 var exception = feature?.Error;
-                 
-                // TODO: filter error message based on environment
+                string correlationId = string.Empty;
+
+                #region Extract CorrelationId from the context
+                var correlationIdProperty = context.Items.SingleOrDefault(i => i.Key.ToString() == "Serilog_CorrelationId").Value as LogEventProperty;
+                if (correlationIdProperty != null)
+                {
+                    var correlationIdPropertyValue = ((ScalarValue)correlationIdProperty.Value)?.Value as String;
+
+                    if (!string.IsNullOrWhiteSpace(correlationIdPropertyValue))
+                        correlationId = correlationIdPropertyValue;
+                }
+                #endregion
 
                 var result = new ErrorModel()
                 {
-                    CorrelationId = context.Request.Headers[correlationKey],
-                    Message = exception.Message,
-                    Trace = exception.StackTrace
+                    CorrelationId = correlationId,
+                    Error = app.Environment.IsProduction() ? $"An error occurred, please contact support with reference number {correlationId}" : exception.Message,
+                    Trace = app.Environment.IsProduction() ? null : exception.StackTrace
                 };
+
                 context.Response.ContentType = "application/json";
 
                 if (exception is FluentValidation.ValidationException)
                 {
                     context.Response.StatusCode = StatusCodes.Status400BadRequest;
+                    result.Error = exception.Message;
                 }
                 else
                 {

@@ -16,6 +16,8 @@ namespace Samples.MongoDb.EFCore.Api.Controllers.v1
     [ApiVersion("1.0")]
     [Route("api/v{version:apiVersion}/[controller]")]
     [ApiController]
+    [SwaggerResponse((int)HttpStatusCode.BadRequest, Type = typeof(ErrorModel), Description = "Validation error details")]
+    [SwaggerResponse((int)HttpStatusCode.InternalServerError, Type = typeof(ErrorModel), Description = "Application error details")]
     public class MoviesController : ControllerBase
     {
         readonly MediaLibraryDbContext _dbContext;

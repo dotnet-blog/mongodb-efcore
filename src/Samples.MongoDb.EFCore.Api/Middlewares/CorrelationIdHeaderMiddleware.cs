@@ -18,7 +18,7 @@ namespace Samples.MongoDb.EFCore.Api.Middlewares
             if (!httpContext.Request.Headers.ContainsKey(_headerKey))
             {
                 var correlationId = Guid.NewGuid().ToString("D");
-                httpContext.Request.Headers.Add(_headerKey, correlationId);
+                httpContext.Request.Headers.TryAdd(_headerKey, correlationId);
             }
 
             await _next(httpContext);

@@ -15,7 +15,6 @@ using Quartz;
 using Samples.MongoDb.EFCore.Api.Jobs;
 using Samples.MongoDb.EFCore.Api.Extensions;
 using Serilog;
-using Samples.MongoDb.EFCore.Api.Middlewares;
 using Masking.Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -27,14 +26,12 @@ builder.Services.AddRouting(options => options.LowercaseUrls = true);
 
 builder.Services.AddHttpContextAccessor();
 
-const string CORRELATION_ID_HEADER = "CorrelationId";
-
 #region Logging
 
 var s = builder.Services;
 Log.Logger = new LoggerConfiguration()
     .Enrich.FromLogContext()
-    .Enrich.WithCorrelationIdHeader(CORRELATION_ID_HEADER)
+    .Enrich.WithCorrelationId("x-correlation-id", true)
     .ReadFrom.Configuration(builder.Configuration)
     .Destructure.ByMaskingProperties("ApiKey")
     .Filter.ByExcluding(logEvent => logEvent.Properties.ContainsKey("ApiKey"))
@@ -197,8 +194,7 @@ builder.Services.AddQuartzHostedService(q => q.WaitForJobsToComplete = true);
 
 var app = builder.Build();
 
-app.UseMiddleware<CorrelationIdHeaderMiddleware>(CORRELATION_ID_HEADER);
-app.UseExceptionHandling(CORRELATION_ID_HEADER);
+app.UseExceptionHandling();
 
 #region Configure healthcheck pipeline
 app.MapHealthChecks("/api/health",
