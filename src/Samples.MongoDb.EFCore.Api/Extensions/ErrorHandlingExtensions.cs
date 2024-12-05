@@ -25,7 +25,8 @@ namespace Samples.MongoDb.EFCore.Api.Extensions
                 var result = new ErrorModel()
                 {
                     CorrelationId = context.Request.Headers[correlationKey],
-                    Message = exception.Message
+                    Message = exception.Message,
+                    Trace = exception.StackTrace
                 };
                 context.Response.ContentType = "application/json";
 
