@@ -20,7 +20,7 @@ namespace Samples.MongoDb.EFCore.Api.Extensions
 
         public static String GetDisplayName<T>(this T value) where T : Enum
         {
-            var enumValue = Enum.GetValues(typeof(T)).Cast<int>().Single(v => v == System.Convert.ToInt32(value);
+            var enumValue = Enum.GetValues(typeof(T)).Cast<int>().Single(v => v == Convert.ToInt32(value));
             var dictionary = GetEnumValueNames(value.GetType());
             return dictionary[enumValue];
         }
