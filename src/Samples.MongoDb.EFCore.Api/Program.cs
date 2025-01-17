@@ -18,8 +18,8 @@ using Serilog;
 using Masking.Serilog;
 using Samples.MongoDb.EFCore.Api.Dtos;
 using FluentValidation;
-using Samples.MongoDb.EFCore.Api.Dtos.MediaLibrary;
-using Samples.MongoDb.EFCore.Api.Validators;
+using Polly;
+using Microsoft.Extensions.Http.Resilience;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -201,7 +201,17 @@ var movieInfoService = builder.Configuration.GetSection("MovieInfoService").Get<
 builder.Services.AddHttpClient<IMovieInfoService, MovieInfoService>(httpClient =>
 {
     httpClient.BaseAddress = movieInfoService.Url.AppendQueryParam("apikey", movieInfoService.ApiKey).ToUri();
-});
+})
+    .AddResilienceHandler("movie-info-service-pipeline", pipelineBuilder =>
+    {
+        pipelineBuilder.AddRetry(new HttpRetryStrategyOptions
+        {
+            MaxRetryAttempts = 3,
+            Delay = TimeSpan.FromSeconds(1),
+            BackoffType = DelayBackoffType.Constant
+        });
+        pipelineBuilder.AddTimeout(TimeSpan.FromSeconds(15));
+    });
 #endregion
 
 #region Healthchecks
