@@ -20,6 +20,7 @@ using Samples.MongoDb.EFCore.Api.Dtos;
 using FluentValidation;
 using Polly;
 using Microsoft.Extensions.Http.Resilience;
+using System.Net;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -208,7 +209,23 @@ builder.Services.AddHttpClient<IMovieInfoService, MovieInfoService>(httpClient =
         {
             MaxRetryAttempts = 3,
             Delay = TimeSpan.FromSeconds(1),
-            BackoffType = DelayBackoffType.Constant
+            BackoffType = DelayBackoffType.Constant,
+            ShouldHandle = args =>
+            {
+                // Retry for specific HTTP responses or exceptions
+                if (args.Outcome.Result is HttpResponseMessage response)
+                {
+                    return ValueTask.FromResult(response.StatusCode == HttpStatusCode.InternalServerError);
+                }
+
+                if (args.Outcome.Exception is HttpRequestException error)
+                {
+                    return ValueTask.FromResult(true);
+                }
+
+                // Do not handle other cases
+                return ValueTask.FromResult(false);
+            }
         });
         pipelineBuilder.AddTimeout(TimeSpan.FromSeconds(15));
     });
