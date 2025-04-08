@@ -1,0 +1,18 @@
+version: '3.3'
+
+services:
+  mssql:
+    container_name: sql-server
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    restart: always
+    environment:
+      ACCEPT_EULA: "Y"
+      MSSQL_SA_PASSWORD: "#ICIjK!Lz0j7N*"
+      MSSQL_LOGGING: "verbose"
+      MSSQL_PID: "Developer"
+    ports:
+      - 1433:1433
+    volumes:
+      - "C:/Containers/mssql/data:/data"
+      - "C:/Containers/mssql/backup:/backup"
+
