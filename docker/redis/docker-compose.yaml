@@ -9,7 +9,7 @@ services:
     environment:
       - TZ=Asia/Dubai
     volumes:
-      - "D:/Containers/redis/data:/data"
+      - "C:/Containers/redis/data:/data"
 
   redis-commander:
     container_name: redis-commander
